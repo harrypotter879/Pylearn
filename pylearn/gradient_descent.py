@@ -32,6 +32,18 @@ class Batch_gradient_Descent(BaseEstimator):
             self.intercept -= self.learning_rate * slope_intercept
 
     def predict(self,X_test):
+
+        if self.coef_ is None or self.intercept_ is None:
+            raise AttributeError(
+                f"This {self.__class__.__name__} instance is not fitted yet. "
+                "Call 'fit' with appropriate arguments before using 'predict'."
+            )
+        
         X_test_arr = np.array(X_test)
         return np.dot(X_test_arr,self.weights) + self.intercept
+    
+    def fit_predict(self,X_train,y_train,X_test):
+
+        self.fit(X_train,y_train)
+        return self.predict(X_test)
 
