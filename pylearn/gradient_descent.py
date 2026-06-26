@@ -23,17 +23,19 @@ class Batch_gradient_Descent(BaseEstimator):
         for _ in range(self.epochs):
 
             y_pred = np.dot(X_train_arr,self.weights) + self.intercept
-            loss = y_train_arr - y_pred
+            error = y_pred - y_train_arr
 
-            slope_weights = (-2 / n) * (X_train_arr.T @ loss)
-            slope_intercept = (-2 / n) * np.sum(loss)
+            slope_weights = (-2 / n) * (X_train_arr.T @ error)
+            slope_intercept = (-2 / n) * np.sum(error)
 
             self.weights -= self.learning_rate * slope_weights
             self.intercept -= self.learning_rate * slope_intercept
 
+        return self
+
     def predict(self,X_test):
 
-        if self.coef_ is None or self.intercept_ is None:
+        if self.weights is None or self.intercept is None:
             raise AttributeError(
                 f"This {self.__class__.__name__} instance is not fitted yet. "
                 "Call 'fit' with appropriate arguments before using 'predict'."
@@ -46,4 +48,60 @@ class Batch_gradient_Descent(BaseEstimator):
 
         self.fit(X_train,y_train)
         return self.predict(X_test)
+    
+class Stocastic_Gradient_Descent(BaseEstimator):
+
+    def __init__(self,learning_rate,epochs):
+
+        self.learning_rate = learning_rate
+        self.epochs = epochs
+
+        self.weights = None
+        self.intercept = None
+
+    def fit(self,X_train,y_train):
+
+        X = np.array(X_train)
+        y = np.array(y_train)
+
+        self.weights = np.ones(X.shape[1])
+        self.intercept = 0
+
+        n = len(y)
+
+        for _ in range(self.epochs):
+            for _ in range(n):
+
+                idx = np.random.randint(0,n)
+
+                X_idx = X[idx]
+                y_idx = y[idx]
+
+                y_pred = np.dot(X_idx,self.weights) + self.intercept
+                error = y_pred - y_idx 
+
+                slope_weights = 2 * error * X_idx
+                slope_intercept = 2 * error
+
+                self.weights -= self.learning_rate * slope_weights
+                self.intercept -= self.learning_rate * slope_intercept
+
+        return self
+
+    def predict(self, X_test):
+
+        if self.weights is None or self.intercept is None:
+            raise AttributeError(
+                f"This {self.__class__.__name__} instance is not fitted yet. "
+                "Call 'fit' with appropriate arguments before using 'predict'."
+            )
+        
+        X = np.array(X_test)
+        return np.dot(X,self.weights) + self.intercept
+    
+    def fit_predict(self,X_train,y_train,X_test):
+        
+        self.fit(X_train,y_train)
+        return self.predict(X_test)
+
 
