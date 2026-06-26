@@ -1,5 +1,6 @@
 from pylearn.linear import Linear_Reg
 from pylearn.gradient_descent import Batch_gradient_Descent
+from pylearn.metrics import Regression_Metrics
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -26,4 +27,6 @@ X_test = scaler.transform(X_test)
 
 bgd = Batch_gradient_Descent(learning_rate=0.001,epochs=100)
 bgd.fit(X_train,y_train)
-print(bgd.predict(X_test))
+y_pred = bgd.predict(X_test)
+rm = Regression_Metrics()
+print(rm.R2_Score(y_test,y_pred))
