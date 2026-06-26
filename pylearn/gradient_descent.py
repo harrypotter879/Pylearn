@@ -25,8 +25,8 @@ class Batch_gradient_Descent(BaseEstimator):
             y_pred = np.dot(X_train_arr,self.weights) + self.intercept
             error = y_pred - y_train_arr
 
-            slope_weights = (-2 / n) * (X_train_arr.T @ error)
-            slope_intercept = (-2 / n) * np.sum(error)
+            slope_weights = (2 / n) * (X_train_arr.T @ error)
+            slope_intercept = (2 / n) * np.sum(error)
 
             self.weights -= self.learning_rate * slope_weights
             self.intercept -= self.learning_rate * slope_intercept
