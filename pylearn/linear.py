@@ -8,23 +8,85 @@ class Linear_Reg(BaseEstimator):
 
         self.weights = None
         self.intercept = None
+        self.beta = None
 
     def fit(self,X_train,y_train):
 
-        X = np.c_[np.ones(X_train.shape[0]),X_train]
-        Beta = np.linalg.solve(X.T @ X , X.T @ y_train)
+        X_arr = np.c_[np.ones(X_train.shape[0]),X_train]
+        y_arr = np.array(y_train)
 
-        self.weights = Beta[1:]
-        self.intercept = Beta[0]
+        beta = np.linalg.pinv(X_arr) @ y_arr
+
+        self.beta = beta
+        self.weights = beta[1:]
+        self.intercept = beta[0]
 
         print(f'Weights : {self.weights}')
         print(f'Intercepts : {self.intercept}')
 
+        return self
+
     def predict(self,X_test):
 
-        return self.intercept +  X_test @ self.weights 
+        if self.beta is None:
+            raise AttributeError(
+                f"This {self.__class__.__name__} instance is not fitted yet. "
+                "Call 'fit' with appropriate arguments before using 'predict'."
+            )
+
+        return X_test @ self.weights + self.intercept
     
     def fit_predict(self,X_train,y_train,X_test):
 
         self.fit(X_train,y_train)
+        return self.predict(X_test)
+    
+class Polynomial_Regression(BaseEstimator):
+
+    def __init__(self,degree):
+
+        self.degree = degree
+        self.weights = None
+        self.intercept = None
+        self.beta = None
+
+        if self.degree < 0:
+           raise ValueError("degree must be >= 0")
+    
+    def Poly_Transform(self,X):
+
+        X = np.asarray(X)
+
+        return np.column_stack(
+            [X**i for i in range(self.degree + 1)] # [1, X, X^2, ..., X^degree]
+        )
+
+    def fit(self,X_train,y_train):
+
+        X_arr = self.Poly_Transform(X_train)
+        y_arr = np.array(y_train)
+
+        beta = np.linalg.pinv(X_arr) @ y_arr
+        
+        self.weights = beta[1:]
+        self.intercept = beta[0]
+        self.beta = beta
+
+        return self
+    
+    def predict(self,X_test):
+
+        if self.beta is None:
+            raise AttributeError(
+                f"This {self.__class__.__name__} instance is not fitted yet. "
+                "Call 'fit' with appropriate arguments before using 'predict'."
+            )
+        
+        X_arr = self.Poly_Transform(X_test)
+        return X_arr @ self.beta
+    
+    def fit_predict(self,X_train,y_train,X_test):
+
+        self.fit(X_train,y_train)
+        
         return self.predict(X_test)
