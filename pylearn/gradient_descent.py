@@ -104,4 +104,60 @@ class Stocastic_Gradient_Descent(BaseEstimator):
         self.fit(X_train,y_train)
         return self.predict(X_test)
 
+class MiniBatch_Gradient_Descent(BaseEstimator):
+    
+    def __init__(self, learning_rate, epochs, batch_size):
+        self.learning_rate = learning_rate
+        self.epochs = epochs
+        self.batch_size = batch_size
+        
+        self.weights = None
+        self.intercept = None
 
+    def fit(self,X_train,y_train):
+
+        X = np.array(X_train)
+        y = np.array(y_train)
+
+        self.weights = np.ones(X.shape[1])
+        self.intercept = 0
+
+        n = len(X)
+
+        for _ in range(self.epochs):
+
+            indices = np.random.permutation(n)
+            X_suffled = X[indices]
+            y_suffled = y[indices]
+
+            for i in range(0,n,self.batch_size):
+
+                X_batch = X_suffled[i:i+self.batch_size]
+                y_batch = y_suffled[i:i+self.batch_size]
+
+                y_pred = np.dot(X_batch, self.weights) + self.intercept
+                error = y_pred - y_batch
+
+                slope_weights = (2 / len(X_batch)) * (X_batch.T @ error)
+                slope_intercept = (2 / len(X_batch)) * np.sum(error)
+
+                self.weights -= self.learning_rate * slope_weights
+                self.intercept -= self.learning_rate * slope_intercept
+
+        return self
+    
+    def predict(self,X_test):
+
+        if self.weights is None or self.intercept is None:
+            raise AttributeError(
+                f"This {self.__class__.__name__} instance is not fitted yet. "
+                "Call 'fit' with appropriate arguments before using 'predict'."
+            )
+        
+        X_test_arr = np.array(X_test)
+        return np.dot(X_test_arr,self.weights) + self.intercept
+
+    def fit_predict(self,X_train,y_train,X_test):
+        
+        self.fit(X_train,y_train)
+        return self.predict(X_test)

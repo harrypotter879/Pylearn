@@ -35,7 +35,5 @@ class Regression_Metrics(BaseEstimator):
         k = X_train.shape[1] if has_intercept else X_train.shape[1] + 1
 
         return 1 - (1 - r2) * (n - 1) / (n - k)
-    
-    
-    
+
     
