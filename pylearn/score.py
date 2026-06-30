@@ -41,7 +41,7 @@ class Classification_Matrics:
     def recall(y_test,y_pred):
 
         TP = np.sum((y_test == 1) & (y_pred == 1))
-        AP = np.sum(y_test == 1)
+        AP = np.sum(y_test == 1) # Actual Prositives
 
         if AP > 0:
             return TP/AP
