@@ -90,3 +90,43 @@ class Polynomial_Regression(BaseEstimator):
         self.fit(X_train,y_train)
         
         return self.predict(X_test)
+
+class Ridge_Regression(BaseEstimator):
+
+    def __init__(self,alpha):
+
+        self.weights = None
+        self.intercept = None
+        self.alpha = alpha
+        self.beta = None
+
+    def fit(self,X_train,y_train):
+
+        X = np.array(X_train)
+        y = np.array(y_train)
+
+        X = np.c_[np.ones(len(X)),X]
+        I = np.eye(X.shape[1])
+        I[0, 0] = 0 
+        beta = np.linalg.pinv(X.T @ X + self.alpha * I) @ X.T @ y
+
+        self.weights = beta[1:]
+        self.intercept = beta[0]
+        self.beta = beta
+
+    def predict(self,X_test):
+
+        if self.beta is None:
+            raise AttributeError(
+                f"This {self.__class__.__name__} instance is not fitted yet. "
+                "Call 'fit' with appropriate arguments before using 'predict'."
+            )
+        
+        X = np.array(X_test)
+        return self.intercept + X @ self.weights
+    
+    def fit_predict(self,X_train,y_train,X_test):
+
+        self.fit(X_train,y_train)
+        
+        return self.predict(X_test)
