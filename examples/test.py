@@ -1,6 +1,6 @@
 import numpy as np
 from pylearn.linear import Ridge_Regression
-from pylearn.metrics import MAE, MSE, RMSE, R2_Score
+from Pylearn.pylearn.score import MAE, MSE, RMSE, R2_Score
 
 # Generate some sample data for Ridge Regression
 np.random.seed(0)
