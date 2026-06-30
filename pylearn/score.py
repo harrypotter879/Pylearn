@@ -23,8 +23,17 @@ class RegressionMetrics:
         k = X_train.shape[1] if has_intercept else X_train.shape[1] + 1
         return 1 - (1 - r2) * (n - 1) / (n - k)
 
-    
 class Classification_Matrics:
+
+    def classification_graph(y_test,y_pred):
+
+        TP = np.sum((y_test == 1) & (y_pred == 1))
+        TN = np.sum((y_test == 0) & (y_pred == 0))
+        FP = np.sum((y_test == 0) & (y_pred == 1))
+        FN = np.sum((y_test == 1) & (y_pred == 0))
+
+        print(f"[TN: {TN}] [FP: {FP}]")
+        print(f"[FN: {FN}] [TP: {TP}]")
 
     def Accuracy(y_test,y_pred):
         return np.mean(y_test == y_pred)
