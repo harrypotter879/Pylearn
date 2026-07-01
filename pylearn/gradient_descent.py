@@ -14,6 +14,26 @@ class MSELoss:
         db = (2 / n) * np.sum(error)
         return dw, db
     
+class RidgeLoss:
+
+    def __init__(self, alpha):
+        self.alpha = alpha
+
+    def loss(self, y_true, y_pred, weights):
+        mse = np.mean((y_true - y_pred) ** 2)
+        w = self.alpha * np.sum(weights ** 2)
+        return mse + w
+
+    def gradient(self, X, y_true, y_pred, weights):
+
+        error = y_pred - y_true
+        n = len(y_true)
+
+        dw = (2 / n) * X.T @ error + 2 * self.alpha * weights
+        db = (2 / n) * np.sum(error)
+
+        return dw, db
+    
 class LinearModel:
     def predict(self, X, weights, intercept):
         return np.dot(X, weights) + intercept
@@ -44,7 +64,7 @@ class Batch_gradient_Descent(BaseEstimator):
 
             y_pred = self.model.predict(X_train_arr, self.weights, self.intercept)
             
-            slope_weights, slope_intercept = self.loss_fn.gradient(X_train_arr, y_train_arr, y_pred)
+            slope_weights, slope_intercept = self.loss_fn.gradient(X_train_arr, y_train_arr, y_pred,self.weights)
 
             self.weights -= self.learning_rate * slope_weights
             self.intercept -= self.learning_rate * slope_intercept

@@ -1,5 +1,5 @@
 import numpy as np
-from pylearn.gradient_descent import MSELoss ,LinearModel ,Batch_gradient_Descent
+from pylearn.gradient_descent import MSELoss ,LinearModel ,Batch_gradient_Descent,RidgeLoss
 
 # 1. Create classification data (0 for small numbers, 1 for large numbers)
 X_train_class = np.array([[1], [2], [5], [6]])
@@ -7,7 +7,7 @@ y_train_class = np.array([0, 0, 1, 1]) # Binary labels
 
 # 2. Grab your "cartridges" for Logistic Regression
 logistic_model = LinearModel()
-logistic_loss = MSELoss()
+logistic_loss = RidgeLoss(alpha=1)
 
 # 3. Slide them into the EXACT SAME gradient descent engine
 classifier = Batch_gradient_Descent(
