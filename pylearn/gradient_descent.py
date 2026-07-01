@@ -1,14 +1,34 @@
 import numpy as np
 from .base import BaseEstimator
 
+
+class MSELoss:
+    def loss(self, y_true, y_pred):
+        return np.mean((y_true - y_pred) ** 2)
+    
+    def gradient(self, X, y_true, y_pred):
+        error = y_pred - y_true
+        n = len(y_true)
+
+        dw = (2 / n) * np.dot(X.T, error)
+        db = (2 / n) * np.sum(error)
+        return dw, db
+    
+class LinearModel:
+    def predict(self, X, weights, intercept):
+        return np.dot(X, weights) + intercept
+
+
 class Batch_gradient_Descent(BaseEstimator):
 
-    def __init__(self,learning_rate,epochs):
+    def __init__(self,learning_rate,epochs,loss_fn=MSELoss(), model=LinearModel()):
 
         self.weights = None
         self.intercept = None
         self.learning_rate = learning_rate
         self.epochs = epochs
+        self.loss_fn = loss_fn
+        self.model = model
 
     def fit(self,X_train,y_train):
 
@@ -22,11 +42,9 @@ class Batch_gradient_Descent(BaseEstimator):
 
         for _ in range(self.epochs):
 
-            y_pred = np.dot(X_train_arr,self.weights) + self.intercept
-            error = y_pred - y_train_arr
-
-            slope_weights = (2 / n) * (X_train_arr.T @ error)
-            slope_intercept = (2 / n) * np.sum(error)
+            y_pred = self.model.predict(X_train_arr, self.weights, self.intercept)
+            
+            slope_weights, slope_intercept = self.loss_fn.gradient(X_train_arr, y_train_arr, y_pred)
 
             self.weights -= self.learning_rate * slope_weights
             self.intercept -= self.learning_rate * slope_intercept
@@ -42,7 +60,7 @@ class Batch_gradient_Descent(BaseEstimator):
             )
         
         X_test_arr = np.array(X_test)
-        return np.dot(X_test_arr,self.weights) + self.intercept
+        return self.model.predict(X_test_arr, self.weights, self.intercept)
     
     def fit_predict(self,X_train,y_train,X_test):
 
@@ -161,3 +179,6 @@ class MiniBatch_Gradient_Descent(BaseEstimator):
         
         self.fit(X_train,y_train)
         return self.predict(X_test)
+
+
+
