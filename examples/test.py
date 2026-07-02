@@ -7,7 +7,7 @@ y_train_class = np.array([0, 0, 1, 1]) # Binary labels
 
 # 2. Grab your "cartridges" for Logistic Regression
 logistic_model = LinearModel()
-logistic_loss = RidgeLoss(alpha=1)
+logistic_loss = MSELoss()
 
 # 3. Slide them into the EXACT SAME gradient descent engine
 classifier = Batch_gradient_Descent(

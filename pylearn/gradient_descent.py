@@ -6,7 +6,7 @@ class MSELoss:
     def loss(self, y_true, y_pred):
         return np.mean((y_true - y_pred) ** 2)
     
-    def gradient(self, X, y_true, y_pred):
+    def gradient(self, X, y_true, y_pred,weights=None):
         error = y_pred - y_true
         n = len(y_true)
 
@@ -41,7 +41,7 @@ class LinearModel:
 
 class Batch_gradient_Descent(BaseEstimator):
 
-    def __init__(self,learning_rate,epochs,loss_fn=MSELoss(), model=LinearModel()):
+    def __init__(self,learning_rate,epochs,loss_fn, model):
 
         self.weights = None
         self.intercept = None
@@ -57,8 +57,6 @@ class Batch_gradient_Descent(BaseEstimator):
 
         X_train_arr = np.array(X_train)
         y_train_arr = np.array(y_train)
-
-        n = len(y_train_arr)
 
         for _ in range(self.epochs):
 
