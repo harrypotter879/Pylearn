@@ -38,7 +38,7 @@ class RidgeLoss:
             dw = 2 * error * X + 2 * self.alpha * weights
             db = 2 * error
         else:                         
-            dw = (2 / n) * X.T @ error + 2 * self.aplha * weights
+            dw = (2 / n) * X.T @ error + 2 * self.alpha * weights
             db = (2 / n) * np.sum(error)
 
         return dw, db
