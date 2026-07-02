@@ -8,10 +8,15 @@ class MSELoss:
     
     def gradient(self, X, y_true, y_pred,weights=None):
         error = y_pred - y_true
-        n = len(y_true)
+        n = len(y_true) if np.ndim(y_true) > 0 else 1
 
-        dw = (2 / n) * np.dot(X.T, error)
-        db = (2 / n) * np.sum(error)
+        if np.ndim(y_true) == 0:      
+            dw = 2 * error * X
+            db = 2 * error
+        else:                         
+            dw = (2 / n) * X.T @ error
+            db = (2 / n) * np.sum(error)
+            
         return dw, db
     
 class RidgeLoss:
@@ -27,10 +32,14 @@ class RidgeLoss:
     def gradient(self, X, y_true, y_pred, weights):
 
         error = y_pred - y_true
-        n = len(y_true)
+        n = len(y_true) if np.ndim(y_true) > 0 else 1
 
-        dw = (2 / n) * X.T @ error + 2 * self.alpha * weights
-        db = (2 / n) * np.sum(error)
+        if np.ndim(y_true) == 0:      
+            dw = 2 * error * X + 2 * self.alpha * weights
+            db = 2 * error
+        else:                         
+            dw = (2 / n) * X.T @ error + 2 * self.aplha * weights
+            db = (2 / n) * np.sum(error)
 
         return dw, db
     
@@ -87,11 +96,12 @@ class Batch_gradient_Descent(BaseEstimator):
     
 class Stocastic_Gradient_Descent(BaseEstimator):
 
-    def __init__(self,learning_rate,epochs):
+    def __init__(self,learning_rate,epochs,model,loss_fn):
 
         self.learning_rate = learning_rate
         self.epochs = epochs
-
+        self.model = model
+        self.loss_fn = loss_fn 
         self.weights = None
         self.intercept = None
 
@@ -113,11 +123,9 @@ class Stocastic_Gradient_Descent(BaseEstimator):
                 X_idx = X[idx]
                 y_idx = y[idx]
 
-                y_pred = np.dot(X_idx,self.weights) + self.intercept
-                error = y_pred - y_idx 
-
-                slope_weights = 2 * error * X_idx
-                slope_intercept = 2 * error
+                y_pred = self.model.predict(X_idx, self.weights, self.intercept)
+            
+                slope_weights, slope_intercept = self.loss_fn.gradient(X_idx, y_idx, y_pred,self.weights)
 
                 self.weights -= self.learning_rate * slope_weights
                 self.intercept -= self.learning_rate * slope_intercept
@@ -133,7 +141,7 @@ class Stocastic_Gradient_Descent(BaseEstimator):
             )
         
         X = np.array(X_test)
-        return np.dot(X,self.weights) + self.intercept
+        return self.model.predict(X, self.weights, self.intercept)
     
     def fit_predict(self,X_train,y_train,X_test):
         
